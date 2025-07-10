@@ -1,24 +1,25 @@
 {
-    "name": ":vendor_slug/:package_slug",
-    "description": ":package_description",
+    "name": "wever/query-builder",
+    "description": "This is my package query-builder",
     "keywords": [
-        ":vendor_name",
+        "wever",
         "laravel",
-        ":package_slug"
+        "query-builder"
     ],
-    "homepage": "https://github.com/:vendor_slug/:package_slug",
+    "homepage": "https://github.com/abdullah-rahmoun/query-builder",
     "license": "MIT",
     "authors": [
         {
-            "name": ":author_name",
-            "email": "author@domain.com",
+            "name": "Abdullah Rahmoun",
+            "email": "abdullah.rahmoun.dev@gmail.com",
             "role": "Developer"
         }
     ],
     "require": {
-        "php": "^8.4",
+        "php": "^8.2",
+        "illuminate/contracts": "^10.0||^11.0||^12.0",
         "spatie/laravel-package-tools": "^1.16",
-        "illuminate/contracts": "^10.0||^11.0||^12.0"
+        "spatie/laravel-query-builder": "^6.3"
     },
     "require-dev": {
         "laravel/pint": "^1.14",
@@ -35,13 +36,13 @@
     },
     "autoload": {
         "psr-4": {
-            "VendorName\\Skeleton\\": "src/",
-            "VendorName\\Skeleton\\Database\\Factories\\": "database/factories/"
+            "Wever\\AdvancedQueryBuilder\\": "src/",
+            "Wever\\AdvancedQueryBuilder\\Database\\Factories\\": "database/factories/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "VendorName\\Skeleton\\Tests\\": "tests/",
+            "Wever\\AdvancedQueryBuilder\\Tests\\": "tests/",
             "Workbench\\App\\": "workbench/app/"
         }
     },
@@ -63,10 +64,10 @@
     "extra": {
         "laravel": {
             "providers": [
-                "VendorName\\Skeleton\\SkeletonServiceProvider"
+                "Wever\\AdvancedQueryBuilder\\AdvancedQueryBuilderServiceProvider"
             ],
             "aliases": {
-                "Skeleton": "VendorName\\Skeleton\\Facades\\Skeleton"
+                "AdvancedQueryBuilder": "Wever\\AdvancedQueryBuilder\\Facades\\AdvancedQueryBuilder"
             }
         }
     },

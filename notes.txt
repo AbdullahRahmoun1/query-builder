@@ -1,0 +1,1 @@
+'title' => 'exact', //if alias doesn't exist the filter wont register (is this the best way?) (should i add a fallback filter in config?)
