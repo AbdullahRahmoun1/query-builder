@@ -5,6 +5,7 @@ namespace Wever\AdvancedQueryBuilder\Support;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\QueryBuilder\QueryBuilder;
+use Wever\AdvancedQueryBuilder\Filtering\FilterHandler;
 
 class QueryBuilderFactory
 {
@@ -29,22 +30,7 @@ class QueryBuilderFactory
         if (!property_exists($this->model, 'filterable')) {
             return $this;
         }
-
-        // Load the aliases from your config file
-        $aliasMap = config('query-builder.filter_aliases', []);
-
-        foreach ($this->model->filterable??[] as $key => $config) {
-            // Handle Simple Mode: ['status']
-            if (is_numeric($key) && is_string($config)) {
-                $this->allowedFilters[] = (new $aliasMap['exact'])($config);
-            }
-
-            // Handle Alias Mode: ['status' => 'exact']
-            if (is_string($key) && is_string($config) && isset($aliasMap[$config])) {
-                $this->allowedFilters[] = (new $aliasMap[$config])($key);
-            }
-        }
-
+        (new FilterHandler($this->model, $this->builder))->execute();
         return $this;
     }
 
