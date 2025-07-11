@@ -5,6 +5,7 @@ namespace Wever\AdvancedQueryBuilder\Filtering;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
+use Str;
 
 class FilterHandler
 {
@@ -32,6 +33,21 @@ class FilterHandler
 
     protected function createFiltersForProperty(int|string $property, string|array $config): array
     {
+        // --- "Magic" Scope Mode ---
+        // Handles: ['published'] where a 'scopePublished' method exists
+        if (is_numeric($property) && is_string($config)) {
+            $scopeMethodName = 'scope' . \Illuminate\Support\Str::studly($config);
+            if (method_exists($this->model, $scopeMethodName)) {
+                return [AllowedFilter::scope($config)];
+            }
+        }
+
+        // --- Explicit Scope Modes ---
+        // Handles: 'status' => 'scope' and 'status' => 'scope:withStatus'
+        if (is_string($config) && str_starts_with($config, 'scope')) {
+            $scopeName = str_contains($config, ':') ? substr($config, strpos($config, ':') + 1) : $property;
+            return [AllowedFilter::scope($property, $scopeName)];
+        }
         // --- Single-Operation Filters ---
         // Handles: ['status'] or ['type' => 'exact'] or ['title' => CustomFilter::class]
         if (is_string($config) || (is_numeric($property) && is_string($config))) {
