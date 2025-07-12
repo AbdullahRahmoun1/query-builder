@@ -5,7 +5,6 @@ namespace Wever\AdvancedQueryBuilder\Filtering;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
-use Str;
 
 class FilterHandler
 {
@@ -16,7 +15,7 @@ class FilterHandler
 
     public function execute(): void
     {
-        if (!property_exists($this->model, 'filterable')) {
+        if (! property_exists($this->model, 'filterable')) {
             return;
         }
 
@@ -26,7 +25,7 @@ class FilterHandler
             $allowedFilters = array_merge($allowedFilters, $generatedFilters);
         }
 
-        if (!empty($allowedFilters)) {
+        if (! empty($allowedFilters)) {
             $this->builder->allowedFilters($allowedFilters);
         }
     }
@@ -36,7 +35,7 @@ class FilterHandler
         // --- "Magic" Scope Mode ---
         // Handles: ['published'] where a 'scopePublished' method exists
         if (is_numeric($property) && is_string($config)) {
-            $scopeMethodName = 'scope' . \Illuminate\Support\Str::studly($config);
+            $scopeMethodName = 'scope'.\Illuminate\Support\Str::studly($config);
             if (method_exists($this->model, $scopeMethodName)) {
                 return [AllowedFilter::scope($config)];
             }
@@ -46,6 +45,7 @@ class FilterHandler
         // Handles: 'status' => 'scope' and 'status' => 'scope:withStatus'
         if (is_string($config) && str_starts_with($config, 'scope')) {
             $scopeName = str_contains($config, ':') ? substr($config, strpos($config, ':') + 1) : $property;
+
             return [AllowedFilter::scope($property, $scopeName)];
         }
         // --- Single-Operation Filters ---
@@ -56,7 +56,7 @@ class FilterHandler
 
             // If it's a custom class
             if (class_exists($operationOrClass) && is_subclass_of($operationOrClass, Filter::class)) {
-                return [AllowedFilter::custom($dbColumn, new $operationOrClass(), $dbColumn)];
+                return [AllowedFilter::custom($dbColumn, new $operationOrClass, $dbColumn)];
             }
 
             // If it's a built-in alias
@@ -80,7 +80,7 @@ class FilterHandler
 
                 // If it's a developer's custom filter class
                 if (class_exists($value) && is_subclass_of($value, Filter::class)) {
-                    $customFilter = new $value();
+                    $customFilter = new $value;
                     $opAlias = $customFilter->getOperationAlias();
                     $filterName = "{$alias}_{$opAlias}";
                     $filters[] = AllowedFilter::custom($filterName, $customFilter, $dbColumn);
@@ -94,6 +94,7 @@ class FilterHandler
                     }
                 }
             }
+
             return $filters;
         }
 

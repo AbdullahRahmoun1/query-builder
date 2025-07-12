@@ -1,7 +1,5 @@
 <?php
 
-use Wever\AdvancedQueryBuilder\Filtering\Strategies\ExactFilter;
-
 return [
     /**
      * A map of simple aliases to Spatie's internal filter methods.
@@ -10,8 +8,8 @@ return [
      */
     'built_in_aliases' => [
         'exact' => 'exact',
-        'like'  => 'partial',
+        'like' => 'partial',
         'scope' => 'scope',
-        'beginsWithStrict' => "beginsWithStrict"
+        'beginsWithStrict' => 'beginsWithStrict',
     ],
 ];

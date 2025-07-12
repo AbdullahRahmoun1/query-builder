@@ -9,6 +9,7 @@ class Schema
 {
     /**
      * A simple cache to avoid repeatedly hitting the database for schema info.
+     *
      * @var array<string, array<int, string>>
      */
     protected static array $columnCache = [];
