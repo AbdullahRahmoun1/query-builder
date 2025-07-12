@@ -3,28 +3,17 @@
 namespace Wever\AdvancedQueryBuilder\Traits;
 
 use Illuminate\Database\Eloquent\Builder;
-use Spatie\QueryBuilder\QueryBuilder;
-use Wever\AdvancedQueryBuilder\Support\QueryBuilderFactory;
+use Wever\AdvancedQueryBuilder\Query\QueryExecutor;
+use Wever\AdvancedQueryBuilder\Query\QueryBuilderFactory;
 
-/**
- * @property array $filterable
- * @property array $sortable
- * @property array $allowedFields
- * @property array $searchable
- */
 trait HasAdvancedQueries
 {
-    // ... (keep existing code)
-
-    public function scopeBuildQuery(Builder $query, array $extraFilters = []): QueryBuilder
+    /**
+     * @param Builder $query
+     * @param array $extraConfig Deprecated, but kept for potential future use.
+     */
+    public function scopeBuildQuery(Builder $query, array $extraConfig = []): QueryExecutor
     {
-        $factory = new QueryBuilderFactory($this, $query, $extraFilters);
-
-        $factory->applySorting();
-
-        // NEW: Tell the factory to apply filtering
-        $factory->applyFiltering();
-
-        return $factory->getBuilder();
+        return (new QueryBuilderFactory($this, $query, $extraConfig))->getExecutor();
     }
 }
