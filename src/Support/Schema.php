@@ -7,6 +7,11 @@ use Illuminate\Support\Facades\Schema as SchemaFacade;
 
 class Schema
 {
+    /**
+     * A simple cache to avoid repeatedly hitting the database for schema info.
+     *
+     * @var array<string, array<int, string>>
+     */
     protected static array $columnCache = [];
 
     public function getColumns(Model $model): array

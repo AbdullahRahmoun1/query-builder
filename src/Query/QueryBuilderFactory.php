@@ -2,8 +2,8 @@
 
 namespace Wever\AdvancedQueryBuilder\Query;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Spatie\QueryBuilder\QueryBuilder;
 use Wever\AdvancedQueryBuilder\Filtering\FilterHandler;
 use Wever\AdvancedQueryBuilder\Support\ConfigManager;

@@ -31,15 +31,29 @@ class FilterHandler
 
     protected function createFiltersForProperty(int|string $property, string|array $config): array
     {
-        // This method now expects "magic" scopes to have been pre-processed by the ConfigManager.
-        // It handles the remaining single-operation and multi-operation modes.
+        // --- "Magic" Scope Mode ---
+        // Handles: ['published'] where a 'scopePublished' method exists
+        if (is_numeric($property) && is_string($config)) {
+            $scopeMethodName = 'scope' . \Illuminate\Support\Str::studly($config);
+            if (method_exists($this->model, $scopeMethodName)) {
+                return [AllowedFilter::scope($config)];
+            }
+        }
 
-        if (is_string($config)) {
+        // --- Explicit Scope Modes ---
+        // Handles: 'status' => 'scope' and 'status' => 'scope:withStatus'
+        if (is_string($config) && str_starts_with($config, 'scope')) {
+            $scopeName = str_contains($config, ':') ? substr($config, strpos($config, ':') + 1) : $property;
+            return [AllowedFilter::scope($property, $scopeName)];
+        }
+        // --- Single-Operation Filters ---
+        // Handles: ['status'] or ['type' => 'exact'] or ['title' => CustomFilter::class]
+        if (is_string($config) || (is_numeric($property) && is_string($config))) {
             $dbColumn = is_numeric($property) ? $config : $property;
             $operationOrClass = is_numeric($property) ? 'exact' : $config;
 
             if (class_exists($operationOrClass) && is_subclass_of($operationOrClass, Filter::class)) {
-                return [AllowedFilter::custom($dbColumn, new $operationOrClass(), $dbColumn)];
+                return [AllowedFilter::custom($dbColumn, new $operationOrClass, $dbColumn)];
             }
 
             if (str_starts_with($operationOrClass, 'scope:')) {
@@ -101,6 +115,7 @@ class FilterHandler
                     }
                 }
             }
+
             return $filters;
         }
 

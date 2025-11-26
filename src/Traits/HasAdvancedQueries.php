@@ -3,14 +3,13 @@
 namespace Wever\AdvancedQueryBuilder\Traits;
 
 use Illuminate\Database\Eloquent\Builder;
-use Wever\AdvancedQueryBuilder\Query\QueryExecutor;
 use Wever\AdvancedQueryBuilder\Query\QueryBuilderFactory;
+use Wever\AdvancedQueryBuilder\Query\QueryExecutor;
 
 trait HasAdvancedQueries
 {
     /**
-     * @param Builder $query
-     * @param array $extraConfig Deprecated, but kept for potential future use.
+     * @param  array  $extraConfig  Deprecated, but kept for potential future use.
      */
     public function scopeBuildQuery(Builder $query, array $extraConfig = []): QueryExecutor
     {
