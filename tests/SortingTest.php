@@ -1,8 +1,8 @@
 <?php
 
+use Wever\AdvancedQueryBuilder\Tests\Models\Category;
 use Wever\AdvancedQueryBuilder\Tests\Models\Post;
 use Wever\AdvancedQueryBuilder\Tests\Models\User;
-use Wever\AdvancedQueryBuilder\Tests\Models\Category;
 
 describe('Sorting Functionality', function () {
     beforeEach(function () {
@@ -44,7 +44,7 @@ describe('Sorting Functionality', function () {
             app()->instance('request', $request);
 
             $posts = Post::buildQuery()->get();
-            
+
             expect($posts)->toHaveCount(3);
             expect($posts->first()->title)->toBe('Alpha Post');
             expect($posts->last()->title)->toBe('Gamma Post');
@@ -55,7 +55,7 @@ describe('Sorting Functionality', function () {
             app()->instance('request', $request);
 
             $posts = Post::buildQuery()->get();
-            
+
             expect($posts)->toHaveCount(3);
             expect($posts->first()->title)->toBe('Gamma Post');
             expect($posts->last()->title)->toBe('Alpha Post');
@@ -66,7 +66,7 @@ describe('Sorting Functionality', function () {
             app()->instance('request', $request);
 
             $posts = Post::buildQuery()->get();
-            
+
             expect($posts)->toHaveCount(3);
             expect($posts->first()->id)->toBe($this->oldPost->id);
             expect($posts->last()->id)->toBe($this->newPost->id);
@@ -77,7 +77,7 @@ describe('Sorting Functionality', function () {
             app()->instance('request', $request);
 
             $posts = Post::buildQuery()->get();
-            
+
             expect($posts)->toHaveCount(3);
             expect($posts->first()->id)->toBe($this->newPost->id);
             expect($posts->last()->id)->toBe($this->oldPost->id);
@@ -88,7 +88,7 @@ describe('Sorting Functionality', function () {
             app()->instance('request', $request);
 
             $posts = Post::buildQuery()->get();
-            
+
             expect($posts)->toHaveCount(3);
             expect($posts->first()->view_count)->toBe(50);
             expect($posts->last()->view_count)->toBe(150);
@@ -99,7 +99,7 @@ describe('Sorting Functionality', function () {
             app()->instance('request', $request);
 
             $posts = Post::buildQuery()->get();
-            
+
             expect($posts)->toHaveCount(3);
             expect($posts->first()->id)->toBe($this->oldPost->id);
             expect($posts->last()->id)->toBe($this->newPost->id);
@@ -120,12 +120,12 @@ describe('Sorting Functionality', function () {
             app()->instance('request', $request);
 
             $posts = Post::buildQuery()->get();
-            
+
             expect($posts)->toHaveCount(4);
-            
+
             // First should be lowest view count
             expect($posts->first()->view_count)->toBe(50);
-            
+
             // Among posts with view_count 100, should be sorted by title
             $hundredViewPosts = $posts->where('view_count', 100);
             expect($hundredViewPosts->first()->title)->toBe('Gamma Post');
@@ -136,12 +136,12 @@ describe('Sorting Functionality', function () {
             app()->instance('request', $request);
 
             $posts = Post::buildQuery()->get();
-            
+
             expect($posts)->toHaveCount(3);
-            
+
             // First should be highest view count
             expect($posts->first()->view_count)->toBe(150);
-            
+
             // Last should be lowest view count
             expect($posts->last()->view_count)->toBe(50);
         });
@@ -151,12 +151,12 @@ describe('Sorting Functionality', function () {
         it('combines sorting with filtering', function () {
             $request = request()->merge([
                 'filter' => ['view_count_like' => '0'], // Posts with view count containing '0'
-                'sort' => '-view_count'
+                'sort' => '-view_count',
             ]);
             app()->instance('request', $request);
 
             $posts = Post::buildQuery()->get();
-            
+
             expect($posts)->toHaveCount(2); // 150 and 100 both contain '0'
             expect($posts->first()->view_count)->toBe(150);
             expect($posts->last()->view_count)->toBe(100);
@@ -205,7 +205,7 @@ describe('Sorting Functionality', function () {
         it('allows all configured sortable fields', function () {
             // Test each configured sortable field
             $sortableFields = ['title', 'created_at', 'view_count', 'published_at'];
-            
+
             foreach ($sortableFields as $field) {
                 $request = request()->merge(['sort' => $field]);
                 app()->instance('request', $request);

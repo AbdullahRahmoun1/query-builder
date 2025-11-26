@@ -1,11 +1,11 @@
 <?php
 
+use Illuminate\Database\Eloquent\Builder;
+use Wever\AdvancedQueryBuilder\Filtering\Filter;
+use Wever\AdvancedQueryBuilder\Tests\Models\Category;
 use Wever\AdvancedQueryBuilder\Tests\Models\Post;
 use Wever\AdvancedQueryBuilder\Tests\Models\User;
-use Wever\AdvancedQueryBuilder\Tests\Models\Category;
 use Wever\AdvancedQueryBuilder\Tests\Support\TestCustomFilter;
-use Wever\AdvancedQueryBuilder\Filtering\Filter;
-use Illuminate\Database\Eloquent\Builder;
 
 describe('Custom Filter Implementation', function () {
     beforeEach(function () {
@@ -34,7 +34,7 @@ describe('Custom Filter Implementation', function () {
 
     describe('Custom Filter Interface', function () {
         it('implements the Filter interface correctly', function () {
-            $filter = new TestCustomFilter();
+            $filter = new TestCustomFilter;
 
             expect($filter)->toBeInstanceOf(Filter::class);
             expect(method_exists($filter, 'getOperationAlias'))->toBeTrue();
@@ -42,12 +42,12 @@ describe('Custom Filter Implementation', function () {
         });
 
         it('returns correct operation alias', function () {
-            $filter = new TestCustomFilter();
+            $filter = new TestCustomFilter;
             expect($filter->getOperationAlias())->toBe('custom');
         });
 
         it('can be invoked with query builder', function () {
-            $filter = new TestCustomFilter();
+            $filter = new TestCustomFilter;
             $query = Post::query();
 
             // Should not throw an exception
@@ -58,7 +58,8 @@ describe('Custom Filter Implementation', function () {
 
     describe('Custom Filter Integration with Models', function () {
         it('integrates custom filters in model configuration', function () {
-            $testModel = new class extends Post {
+            $testModel = new class extends Post
+            {
                 protected $filterable = [
                     'title' => [TestCustomFilter::class],
                 ];
@@ -72,7 +73,8 @@ describe('Custom Filter Implementation', function () {
         });
 
         it('works with multi-operation configuration', function () {
-            $testModel = new class extends Post {
+            $testModel = new class extends Post
+            {
                 protected $filterable = [
                     'title' => [TestCustomFilter::class, 'exact'],
                 ];
@@ -86,11 +88,12 @@ describe('Custom Filter Implementation', function () {
         });
 
         it('works with alias configuration', function () {
-            $testModel = new class extends Post {
+            $testModel = new class extends Post
+            {
                 protected $filterable = [
                     'title' => [
                         'alias' => 'custom_title',
-                        'operations' => [TestCustomFilter::class, 'like']
+                        'operations' => [TestCustomFilter::class, 'like'],
                     ],
                 ];
             };
@@ -107,7 +110,8 @@ describe('Custom Filter Implementation', function () {
     describe('Custom Filter Execution', function () {
         it('applies custom filter logic correctly', function () {
             // Create a model that uses our test custom filter
-            $testModel = new class extends Post {
+            $testModel = new class extends Post
+            {
                 protected $filterable = [
                     'title' => [TestCustomFilter::class],
                 ];
@@ -126,7 +130,8 @@ describe('Custom Filter Implementation', function () {
         });
 
         it('handles custom filter with different values', function () {
-            $testModel = new class extends Post {
+            $testModel = new class extends Post
+            {
                 protected $filterable = [
                     'title' => [TestCustomFilter::class],
                 ];
@@ -146,7 +151,8 @@ describe('Custom Filter Implementation', function () {
     describe('Multiple Custom Filters', function () {
         it('handles multiple different custom filters', function () {
             // Create another custom filter
-            $secondFilter = new class implements Filter {
+            $secondFilter = new class implements Filter
+            {
                 public function getOperationAlias(): string
                 {
                     return 'special';
@@ -160,7 +166,8 @@ describe('Custom Filter Implementation', function () {
 
             $secondFilterClass = get_class($secondFilter);
 
-            $testModel = new class($secondFilterClass) extends Post {
+            $testModel = new class($secondFilterClass) extends Post
+            {
                 protected $secondFilterClass;
 
                 public function __construct($secondFilterClass, array $attributes = [])
@@ -182,7 +189,8 @@ describe('Custom Filter Implementation', function () {
         });
 
         it('combines custom filters with built-in filters', function () {
-            $testModel = new class extends Post {
+            $testModel = new class extends Post
+            {
                 protected $filterable = [
                     'title' => [TestCustomFilter::class, 'exact', 'like'],
                 ];
@@ -199,7 +207,8 @@ describe('Custom Filter Implementation', function () {
 
     describe('Custom Filter Error Handling', function () {
         it('handles invalid custom filter classes gracefully', function () {
-            $testModel = new class extends Post {
+            $testModel = new class extends Post
+            {
                 protected $filterable = [
                     'title' => ['NonExistentFilterClass'],
                 ];
@@ -213,7 +222,8 @@ describe('Custom Filter Implementation', function () {
         });
 
         it('handles custom filters that do not implement Filter interface', function () {
-            $invalidFilter = new class {
+            $invalidFilter = new class
+            {
                 public function getOperationAlias(): string
                 {
                     return 'invalid';
@@ -222,7 +232,8 @@ describe('Custom Filter Implementation', function () {
 
             $invalidFilterClass = get_class($invalidFilter);
 
-            $testModel = new class($invalidFilterClass) extends Post {
+            $testModel = new class($invalidFilterClass) extends Post
+            {
                 protected $invalidFilterClass;
 
                 public function __construct($invalidFilterClass, array $attributes = [])
@@ -244,7 +255,8 @@ describe('Custom Filter Implementation', function () {
     describe('Advanced Custom Filter Scenarios', function () {
         it('supports custom filters with complex logic', function () {
             // Create a complex custom filter
-            $complexFilter = new class implements Filter {
+            $complexFilter = new class implements Filter
+            {
                 public function getOperationAlias(): string
                 {
                     return 'complex';
@@ -255,14 +267,15 @@ describe('Custom Filter Implementation', function () {
                     // Complex logic: search in multiple fields
                     $query->where(function ($q) use ($value, $property) {
                         $q->where($property, 'like', "%{$value}%")
-                          ->orWhere('content', 'like', "%{$value}%");
+                            ->orWhere('content', 'like', "%{$value}%");
                     });
                 }
             };
 
             $complexFilterClass = get_class($complexFilter);
 
-            $testModel = new class($complexFilterClass) extends Post {
+            $testModel = new class($complexFilterClass) extends Post
+            {
                 protected $complexFilterClass;
 
                 public function __construct($complexFilterClass, array $attributes = [])
@@ -283,7 +296,8 @@ describe('Custom Filter Implementation', function () {
         });
 
         it('supports custom filters with relationship queries', function () {
-            $relationFilter = new class implements Filter {
+            $relationFilter = new class implements Filter
+            {
                 public function getOperationAlias(): string
                 {
                     return 'relation';
@@ -299,7 +313,8 @@ describe('Custom Filter Implementation', function () {
 
             $relationFilterClass = get_class($relationFilter);
 
-            $testModel = new class($relationFilterClass) extends Post {
+            $testModel = new class($relationFilterClass) extends Post
+            {
                 protected $relationFilterClass;
 
                 public function __construct($relationFilterClass, array $attributes = [])
@@ -321,7 +336,7 @@ describe('Custom Filter Implementation', function () {
 
     describe('Custom Filter Performance', function () {
         it('does not create unnecessary instances of custom filters', function () {
-            $filter = new TestCustomFilter();
+            $filter = new TestCustomFilter;
 
             // Verify the filter can be instantiated without issues
             expect($filter)->toBeInstanceOf(Filter::class);
@@ -329,7 +344,8 @@ describe('Custom Filter Implementation', function () {
         });
 
         it('handles custom filters efficiently in configuration', function () {
-            $testModel = new class extends Post {
+            $testModel = new class extends Post
+            {
                 protected $filterable = [
                     'title' => [TestCustomFilter::class],
                     'content' => [TestCustomFilter::class],

@@ -17,6 +17,7 @@ class QueryExecutor
     public function __call(string $method, array $parameters)
     {
         $this->applyFinalLogicIfNotApplied();
+
         return $this->builder->{$method}(...$parameters);
     }
 
@@ -40,19 +41,19 @@ class QueryExecutor
 
     protected function getAllowedFields(): array
     {
-        if (isset($this->fieldsConfig['allowed']) && !is_null($this->fieldsConfig['allowed'])) {
+        if (isset($this->fieldsConfig['allowed']) && ! is_null($this->fieldsConfig['allowed'])) {
             return $this->fieldsConfig['allowed'];
         }
-        
+
         // Get database columns
         $allColumns = (new Schema)->getColumns($this->builder->getModel());
         $hidden = $this->getHiddenFields();
         $databaseFields = array_diff($allColumns, $hidden);
-        
+
         // Add accessor fields that have dependencies defined
         $dependencies = $this->getFieldDependencies();
         $accessorFields = array_keys($dependencies);
-        
+
         // Combine database fields and accessor fields
         return array_merge($databaseFields, $accessorFields);
     }

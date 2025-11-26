@@ -1,8 +1,8 @@
 <?php
 
+use Wever\AdvancedQueryBuilder\Tests\Models\Category;
 use Wever\AdvancedQueryBuilder\Tests\Models\Post;
 use Wever\AdvancedQueryBuilder\Tests\Models\User;
-use Wever\AdvancedQueryBuilder\Tests\Models\Category;
 use Wever\AdvancedQueryBuilder\Tests\Support\TestCustomFilter;
 
 describe('Filtering Functionality', function () {
@@ -50,7 +50,7 @@ describe('Filtering Functionality', function () {
             app()->instance('request', $request);
 
             $posts = Post::buildQuery()->get();
-            
+
             expect($posts)->toHaveCount(1);
             expect($posts->first()->status)->toBe('published');
         });
@@ -60,7 +60,7 @@ describe('Filtering Functionality', function () {
             app()->instance('request', $request);
 
             $posts = Post::buildQuery()->get();
-            
+
             expect($posts)->toHaveCount(1);
             expect($posts->first()->is_featured)->toBeTrue();
         });
@@ -80,7 +80,7 @@ describe('Filtering Functionality', function () {
             app()->instance('request', $request);
 
             $posts = Post::buildQuery()->get();
-            
+
             expect($posts)->toHaveCount(1);
             expect($posts->first()->title)->toContain('Tech');
         });
@@ -90,7 +90,7 @@ describe('Filtering Functionality', function () {
             app()->instance('request', $request);
 
             $posts = Post::buildQuery()->get();
-            
+
             expect($posts)->toHaveCount(1);
             expect($posts->first()->title)->toContain('Tech');
         });
@@ -98,12 +98,12 @@ describe('Filtering Functionality', function () {
         it('handles multiple like filters', function () {
             $request = request()->merge(['filter' => [
                 'title_like' => 'Post',
-                'view_count_like' => '5'
+                'view_count_like' => '5',
             ]]);
             app()->instance('request', $request);
 
             $posts = Post::buildQuery()->get();
-            
+
             expect($posts)->toHaveCount(2); // Both draft and published posts contain "Post" and have view counts with "5"
         });
     });
@@ -130,12 +130,12 @@ describe('Filtering Functionality', function () {
         it('combines multiple operations with AND logic', function () {
             $request = request()->merge(['filter' => [
                 'title_like' => 'Post',
-                'status' => 'published'
+                'status' => 'published',
             ]]);
             app()->instance('request', $request);
 
             $posts = Post::buildQuery()->get();
-            
+
             expect($posts)->toHaveCount(1);
             expect($posts->first()->status)->toBe('published');
             expect($posts->first()->title)->toContain('Post');
@@ -148,16 +148,17 @@ describe('Filtering Functionality', function () {
             app()->instance('request', $request);
 
             $posts = Post::buildQuery()->get();
-            
+
             expect($posts)->toHaveCount(1);
             expect($posts->first()->status)->toBe('published');
         });
 
         it('uses explicit scope filtering', function () {
             // This would require a model with explicit scope configuration
-            $user = new class extends User {
+            $user = new class extends User
+            {
                 protected $filterable = [
-                    'active' => 'scope:active'
+                    'active' => 'scope:active',
                 ];
 
                 public function scopeActive($query)
@@ -177,7 +178,7 @@ describe('Filtering Functionality', function () {
             app()->instance('request', $request);
 
             $posts = Post::buildQuery()->get();
-            
+
             expect($posts)->toHaveCount(2); // Both posts by Admin User
             expect($posts->pluck('author_id')->unique())->toContain($this->adminUser->id);
         });
@@ -186,14 +187,15 @@ describe('Filtering Functionality', function () {
     describe('Custom Filter Integration', function () {
         it('can use custom filter classes', function () {
             // Create a test model with custom filter
-            $testModel = new class extends Post {
+            $testModel = new class extends Post
+            {
                 protected $filterable = [
-                    'title' => [TestCustomFilter::class]
+                    'title' => [TestCustomFilter::class],
                 ];
             };
 
             // This test verifies the custom filter interface works
-            $filter = new TestCustomFilter();
+            $filter = new TestCustomFilter;
             expect($filter->getOperationAlias())->toBe('custom');
             expect($filter)->toBeInstanceOf(\Wever\AdvancedQueryBuilder\Filtering\Filter::class);
         });

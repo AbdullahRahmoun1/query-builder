@@ -1,8 +1,8 @@
 <?php
 
+use Wever\AdvancedQueryBuilder\Tests\Models\Category;
 use Wever\AdvancedQueryBuilder\Tests\Models\Post;
 use Wever\AdvancedQueryBuilder\Tests\Models\User;
-use Wever\AdvancedQueryBuilder\Tests\Models\Category;
 
 describe('Field Selection Functionality', function () {
     beforeEach(function () {
@@ -25,14 +25,14 @@ describe('Field Selection Functionality', function () {
 
             $posts = Post::buildQuery()->get();
             $post = $posts->first();
-            
+
             expect($posts)->toHaveCount(1);
-            
+
             // Should have requested fields
             expect($post->id)->not->toBeNull();
             expect($post->title)->toBe('Test Post');
             expect($post->status)->toBe('published');
-            
+
             // Should not have non-requested fields (they should be null or not loaded)
             // Note: Laravel might still load some fields, so we check if the selection worked
             expect($post->getAttributes())->toHaveKeys(['id', 'title', 'status']);
@@ -41,7 +41,7 @@ describe('Field Selection Functionality', function () {
         it('returns all allowed fields when no fields parameter is provided', function () {
             $posts = Post::buildQuery()->get();
             $post = $posts->first();
-            
+
             expect($posts)->toHaveCount(1);
             expect($post->title)->toBe('Test Post');
             expect($post->content)->toBe('This is test content');
@@ -54,7 +54,7 @@ describe('Field Selection Functionality', function () {
 
             $posts = Post::buildQuery()->get();
             $post = $posts->first();
-            
+
             expect($post->getAttributes())->toHaveKeys(['id', 'title']);
         });
 
@@ -64,7 +64,7 @@ describe('Field Selection Functionality', function () {
 
             $posts = Post::buildQuery()->get();
             $post = $posts->first();
-            
+
             expect($post->getAttributes())->toHaveKeys(['id', 'title', 'view_count']);
         });
     });
@@ -76,7 +76,7 @@ describe('Field Selection Functionality', function () {
 
             $posts = Post::buildQuery()->get();
             $post = $posts->first();
-            
+
             // 'id' should be included because it's in forcedFields
             expect($post->getAttributes())->toHaveKey('id');
             expect($post->id)->not->toBeNull();
@@ -88,7 +88,7 @@ describe('Field Selection Functionality', function () {
 
             $posts = Post::buildQuery()->get();
             $post = $posts->first();
-            
+
             // Should have both requested field and forced field
             expect($post->getAttributes())->toHaveKeys(['id', 'title']);
         });
@@ -101,10 +101,10 @@ describe('Field Selection Functionality', function () {
 
             $posts = Post::buildQuery()->get();
             $post = $posts->first();
-            
+
             // Should include dependencies: title and status
             expect($post->getAttributes())->toHaveKeys(['id', 'title', 'status']);
-            
+
             // The accessor should work
             expect($post->full_title)->toBe('Test Post (published)');
         });
@@ -115,14 +115,15 @@ describe('Field Selection Functionality', function () {
 
             $posts = Post::buildQuery()->get();
             $post = $posts->first();
-            
+
             // Should automatically include id (forced), title and status (dependencies)
             expect($post->getAttributes())->toHaveKeys(['id', 'title', 'status']);
         });
 
         it('handles multiple fields with different dependencies', function () {
             // Create a model with multiple accessors for testing
-            $testModel = new class extends Post {
+            $testModel = new class extends Post
+            {
                 protected $fieldDependencies = [
                     'full_title' => ['title', 'status'],
                     'author_info' => ['author_id'],
@@ -130,7 +131,7 @@ describe('Field Selection Functionality', function () {
 
                 public function getAuthorInfoAttribute()
                 {
-                    return 'Author: ' . $this->author_id;
+                    return 'Author: '.$this->author_id;
                 }
             };
 
@@ -170,8 +171,10 @@ describe('Field Selection Functionality', function () {
     describe('Auto Field Discovery', function () {
         it('discovers fields automatically when allowedFields is not set', function () {
             // Create a model without explicit allowedFields
-            $testModel = new class extends User {
+            $testModel = new class extends User
+            {
                 protected $allowedFields = null; // Will auto-discover
+
                 protected $hiddenFields = ['password', 'remember_token'];
             };
 
@@ -187,7 +190,7 @@ describe('Field Selection Functionality', function () {
 
             $posts = Post::buildQuery()->with('author')->get();
             $post = $posts->first();
-            
+
             expect($post->getAttributes())->toHaveKeys(['id', 'title', 'author_id']);
             expect($post->author)->not->toBeNull();
             expect($post->author->name)->toBe('John Doe');
@@ -198,13 +201,13 @@ describe('Field Selection Functionality', function () {
         it('combines field selection with filtering', function () {
             $request = request()->merge([
                 'fields' => 'id,title,status',
-                'filter' => ['status' => 'published']
+                'filter' => ['status' => 'published'],
             ]);
             app()->instance('request', $request);
 
             $posts = Post::buildQuery()->get();
             $post = $posts->first();
-            
+
             expect($posts)->toHaveCount(1);
             expect($post->getAttributes())->toHaveKeys(['id', 'title', 'status']);
             expect($post->status)->toBe('published');
@@ -220,12 +223,12 @@ describe('Field Selection Functionality', function () {
 
             $request = request()->merge([
                 'fields' => 'id,title',
-                'sort' => 'title'
+                'sort' => 'title',
             ]);
             app()->instance('request', $request);
 
             $posts = Post::buildQuery()->get();
-            
+
             expect($posts)->toHaveCount(2);
             expect($posts->first()->getAttributes())->toHaveKeys(['id', 'title']);
             expect($posts->first()->title)->toBe('Another Post'); // Alphabetically first
@@ -239,7 +242,7 @@ describe('Field Selection Functionality', function () {
 
             $posts = Post::buildQuery()->get();
             $post = $posts->first();
-            
+
             // Should not have loaded unnecessary fields like content
             $attributes = $post->getAttributes();
             expect($attributes)->not->toHaveKey('content');

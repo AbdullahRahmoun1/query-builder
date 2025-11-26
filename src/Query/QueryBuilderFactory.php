@@ -11,6 +11,7 @@ use Wever\AdvancedQueryBuilder\Support\ConfigManager;
 class QueryBuilderFactory
 {
     protected QueryBuilder $builder;
+
     protected ConfigManager $configManager;
 
     public function __construct(protected Model $model, Builder $query)
@@ -43,7 +44,7 @@ class QueryBuilderFactory
     protected function applySorting(): void
     {
         $sorts = $this->configManager->getSorts();
-        if (!empty($sorts)) {
+        if (! empty($sorts)) {
             $this->builder->allowedSorts($sorts);
         }
     }
@@ -55,7 +56,7 @@ class QueryBuilderFactory
         // Get allowed fields (database columns only - accessors are handled in preprocessRequest)
         $allowedFields = $fieldsConfig['allowed'] ?? [];
 
-        if (!empty($allowedFields)) {
+        if (! empty($allowedFields)) {
             $this->builder->allowedFields($allowedFields);
         }
     }

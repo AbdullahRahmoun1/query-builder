@@ -15,7 +15,7 @@ class FieldSelectionHandler
 
     public function getAllowedFields(): array
     {
-        if (isset($this->fieldsConfig['allowed']) && !is_null($this->fieldsConfig['allowed'])) {
+        if (isset($this->fieldsConfig['allowed']) && ! is_null($this->fieldsConfig['allowed'])) {
             return $this->fieldsConfig['allowed'];
         }
 

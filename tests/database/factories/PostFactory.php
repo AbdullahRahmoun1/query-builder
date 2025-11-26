@@ -3,9 +3,9 @@
 namespace Wever\AdvancedQueryBuilder\Tests\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Wever\AdvancedQueryBuilder\Tests\Models\Category;
 use Wever\AdvancedQueryBuilder\Tests\Models\Post;
 use Wever\AdvancedQueryBuilder\Tests\Models\User;
-use Wever\AdvancedQueryBuilder\Tests\Models\Category;
 
 class PostFactory extends Factory
 {

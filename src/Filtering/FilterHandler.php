@@ -24,7 +24,7 @@ class FilterHandler
             $allowedFilters = array_merge($allowedFilters, $generatedFilters);
         }
 
-        if (!empty($allowedFilters)) {
+        if (! empty($allowedFilters)) {
             $this->builder->allowedFilters($allowedFilters);
         }
     }
@@ -34,7 +34,7 @@ class FilterHandler
         // --- "Magic" Scope Mode ---
         // Handles: ['published'] where a 'scopePublished' method exists
         if (is_numeric($property) && is_string($config)) {
-            $scopeMethodName = 'scope' . \Illuminate\Support\Str::studly($config);
+            $scopeMethodName = 'scope'.\Illuminate\Support\Str::studly($config);
             if (method_exists($this->model, $scopeMethodName)) {
                 return [AllowedFilter::scope($config)];
             }
@@ -44,6 +44,7 @@ class FilterHandler
         // Handles: 'status' => 'scope' and 'status' => 'scope:withStatus'
         if (is_string($config) && str_starts_with($config, 'scope')) {
             $scopeName = str_contains($config, ':') ? substr($config, strpos($config, ':') + 1) : $property;
+
             return [AllowedFilter::scope($property, $scopeName)];
         }
         // --- Single-Operation Filters ---
@@ -58,6 +59,7 @@ class FilterHandler
 
             if (str_starts_with($operationOrClass, 'scope:')) {
                 $scopeName = \Illuminate\Support\Str::after($operationOrClass, ':');
+
                 return [AllowedFilter::scope($dbColumn, $scopeName)];
             }
 
@@ -70,7 +72,7 @@ class FilterHandler
                     'exact' => 'exact',
                     'like' => 'partial',
                     'scope' => 'scope',
-                    'beginsWithStrict' => 'beginsWithStrict'
+                    'beginsWithStrict' => 'beginsWithStrict',
                 ];
                 $spatieMethod = $fallbackAliases[$operationOrClass] ?? null;
             }
@@ -90,12 +92,11 @@ class FilterHandler
                 $opName = is_string($key) ? $key : $op;
 
                 if (class_exists($op) && is_subclass_of($op, Filter::class)) {
-                    $customFilter = new $op();
+                    $customFilter = new $op;
                     $opAlias = $customFilter->getOperationAlias();
                     $filterName = "{$alias}_{$opAlias}";
                     $filters[] = AllowedFilter::custom($filterName, $customFilter, $dbColumn);
-                }
-                elseif (is_string($op)) {
+                } elseif (is_string($op)) {
                     try {
                         $builtInAliases = config('query-builder.built_in_aliases');
                         $spatieMethod = $builtInAliases[$op] ?? null;
@@ -105,7 +106,7 @@ class FilterHandler
                             'exact' => 'exact',
                             'like' => 'partial',
                             'scope' => 'scope',
-                            'beginsWithStrict' => 'beginsWithStrict'
+                            'beginsWithStrict' => 'beginsWithStrict',
                         ];
                         $spatieMethod = $fallbackAliases[$op] ?? null;
                     }

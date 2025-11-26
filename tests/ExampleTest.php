@@ -1,9 +1,9 @@
 <?php
 
+use Wever\AdvancedQueryBuilder\Query\QueryExecutor;
+use Wever\AdvancedQueryBuilder\Tests\Models\Category;
 use Wever\AdvancedQueryBuilder\Tests\Models\Post;
 use Wever\AdvancedQueryBuilder\Tests\Models\User;
-use Wever\AdvancedQueryBuilder\Tests\Models\Category;
-use Wever\AdvancedQueryBuilder\Query\QueryExecutor;
 
 describe('HasAdvancedQueries Trait', function () {
     beforeEach(function () {

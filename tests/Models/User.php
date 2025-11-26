@@ -9,7 +9,7 @@ use Wever\AdvancedQueryBuilder\Traits\HasAdvancedQueries;
 
 class User extends Model
 {
-    use HasFactory, HasAdvancedQueries;
+    use HasAdvancedQueries, HasFactory;
 
     protected $fillable = [
         'name',

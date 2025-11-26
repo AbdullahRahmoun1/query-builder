@@ -30,7 +30,7 @@ class TestCase extends Orchestra
     public function getEnvironmentSetUp($app)
     {
         config()->set('database.default', 'testing');
-        
+
         // Try SQLite first, fallback to array driver if SQLite is not available
         try {
             new \PDO('sqlite::memory:');
@@ -64,9 +64,9 @@ class TestCase extends Orchestra
                 $table->id();
             });
             \Schema::dropIfExists('test_connection');
-            
+
             // Run test migrations
-            foreach (File::allFiles(__DIR__ . '/database/migrations') as $migration) {
+            foreach (File::allFiles(__DIR__.'/database/migrations') as $migration) {
                 (include $migration->getRealPath())->up();
             }
         } catch (\Exception $e) {

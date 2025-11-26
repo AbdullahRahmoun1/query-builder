@@ -10,7 +10,7 @@ use Wever\AdvancedQueryBuilder\Traits\HasAdvancedQueries;
 
 class Post extends Model
 {
-    use HasFactory, HasAdvancedQueries;
+    use HasAdvancedQueries, HasFactory;
 
     protected $fillable = [
         'title',
@@ -101,6 +101,6 @@ class Post extends Model
     // Accessor for testing field dependencies
     public function getFullTitleAttribute()
     {
-        return $this->title . ' (' . $this->status . ')';
+        return $this->title.' ('.$this->status.')';
     }
 }

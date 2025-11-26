@@ -1,16 +1,16 @@
 <?php
 
+use Wever\AdvancedQueryBuilder\Query\QueryExecutor;
+use Wever\AdvancedQueryBuilder\Support\ConfigManager;
+use Wever\AdvancedQueryBuilder\Tests\Models\Category;
 use Wever\AdvancedQueryBuilder\Tests\Models\Post;
 use Wever\AdvancedQueryBuilder\Tests\Models\User;
-use Wever\AdvancedQueryBuilder\Tests\Models\Category;
 use Wever\AdvancedQueryBuilder\Tests\Support\TestRoleProvider;
-use Wever\AdvancedQueryBuilder\Support\ConfigManager;
-use Wever\AdvancedQueryBuilder\Query\QueryExecutor;
 
 describe('Edge Cases and Error Handling', function () {
     beforeEach(function () {
         TestRoleProvider::clearRoles();
-        
+
         $this->user = User::factory()->create();
         $this->category = Category::factory()->create();
         $this->post = Post::factory()->create([
@@ -77,7 +77,7 @@ describe('Edge Cases and Error Handling', function () {
         });
 
         it('handles unicode characters in filter values', function () {
-            $unicode = "测试 🚀 émojis ñoño";
+            $unicode = '测试 🚀 émojis ñoño';
             $request = request()->merge(['filter' => ['title_like' => $unicode]]);
             app()->instance('request', $request);
 
@@ -88,7 +88,8 @@ describe('Edge Cases and Error Handling', function () {
 
     describe('Model Configuration Edge Cases', function () {
         it('handles models with no configuration properties', function () {
-            $emptyModel = new class extends Post {
+            $emptyModel = new class extends Post
+            {
                 // No filterable, sortable, etc.
             };
 
@@ -103,9 +104,12 @@ describe('Edge Cases and Error Handling', function () {
         });
 
         it('handles models with invalid configuration types', function () {
-            $invalidModel = new class extends Post {
+            $invalidModel = new class extends Post
+            {
                 protected $filterable = 'should_be_array';
+
                 protected $sortable = 123;
+
                 protected $allowedFields = false;
             };
 
@@ -115,7 +119,8 @@ describe('Edge Cases and Error Handling', function () {
         });
 
         it('handles circular references in field dependencies', function () {
-            $circularModel = new class extends Post {
+            $circularModel = new class extends Post
+            {
                 protected $fieldDependencies = [
                     'field_a' => ['field_b'],
                     'field_b' => ['field_a'], // Circular reference
@@ -129,7 +134,8 @@ describe('Edge Cases and Error Handling', function () {
         });
 
         it('handles deeply nested field dependencies', function () {
-            $deepModel = new class extends Post {
+            $deepModel = new class extends Post
+            {
                 protected $fieldDependencies = [
                     'level1' => ['level2'],
                     'level2' => ['level3'],
@@ -181,14 +187,14 @@ describe('Edge Cases and Error Handling', function () {
     describe('Memory and Performance Edge Cases', function () {
         it('handles multiple simultaneous query builders', function () {
             $executors = [];
-            
+
             // Create multiple query builders
             for ($i = 0; $i < 100; $i++) {
                 $executors[] = Post::buildQuery();
             }
 
             expect(count($executors))->toBe(100);
-            
+
             // Each should be independent
             foreach ($executors as $executor) {
                 expect($executor)->toBeInstanceOf(QueryExecutor::class);
@@ -204,7 +210,7 @@ describe('Edge Cases and Error Handling', function () {
                     'is_featured' => '1',
                 ],
                 'sort' => ['-created_at', 'title', '-view_count'],
-                'fields' => 'id,title,status,view_count,created_at,full_title'
+                'fields' => 'id,title,status,view_count,created_at,full_title',
             ]);
             app()->instance('request', $request);
 
@@ -216,19 +222,19 @@ describe('Edge Cases and Error Handling', function () {
     describe('Concurrent Access Edge Cases', function () {
         it('handles role changes during query building', function () {
             TestRoleProvider::setRoles(['user']);
-            
+
             $executor = Post::buildQuery();
-            
+
             // Change roles after creating executor
             TestRoleProvider::setRoles(['admin']);
-            
+
             // Should still work with original configuration
             $posts = $executor->get();
             expect($posts)->toBeCollection();
         });
 
         it('handles configuration changes during execution', function () {
-            $model = new Post();
+            $model = new Post;
             $executor = $model->buildQuery();
 
             // Modify model configuration (simulating concurrent changes)
@@ -249,13 +255,13 @@ describe('Edge Cases and Error Handling', function () {
             // Should not cause SQL injection
             $posts = Post::buildQuery()->get();
             expect($posts)->toBeCollection();
-            
+
             // Verify table still exists by checking count
             expect(Post::count())->toBeGreaterThanOrEqual(0);
         });
 
         it('prevents SQL injection in sort parameters', function () {
-            $maliciousSort = "title; DROP TABLE posts; --";
+            $maliciousSort = 'title; DROP TABLE posts; --';
             $request = request()->merge(['sort' => $maliciousSort]);
             app()->instance('request', $request);
 
@@ -264,7 +270,7 @@ describe('Edge Cases and Error Handling', function () {
         });
 
         it('prevents SQL injection in field selection', function () {
-            $maliciousFields = "id, (SELECT password FROM users LIMIT 1) as hacked";
+            $maliciousFields = 'id, (SELECT password FROM users LIMIT 1) as hacked';
             $request = request()->merge(['fields' => $maliciousFields]);
             app()->instance('request', $request);
 
@@ -301,7 +307,8 @@ describe('Edge Cases and Error Handling', function () {
 
     describe('Configuration Validation', function () {
         it('validates filter configuration format', function () {
-            $invalidFilterModel = new class extends Post {
+            $invalidFilterModel = new class extends Post
+            {
                 protected $filterable = [
                     'status' => ['invalid' => 'structure'],
                     'title' => 123, // Invalid type
@@ -316,7 +323,8 @@ describe('Edge Cases and Error Handling', function () {
         });
 
         it('validates sort configuration format', function () {
-            $invalidSortModel = new class extends Post {
+            $invalidSortModel = new class extends Post
+            {
                 protected $sortable = [
                     'field1' => 'invalid_value', // Should be just field names
                     123 => 'numeric_key',
@@ -330,9 +338,12 @@ describe('Edge Cases and Error Handling', function () {
         });
 
         it('validates field configuration format', function () {
-            $invalidFieldModel = new class extends Post {
+            $invalidFieldModel = new class extends Post
+            {
                 protected $allowedFields = 'should_be_array';
+
                 protected $forcedFields = 123;
+
                 protected $fieldDependencies = 'invalid';
             };
 
@@ -345,7 +356,8 @@ describe('Edge Cases and Error Handling', function () {
 
     describe('Error Recovery', function () {
         it('recovers from invalid scope methods', function () {
-            $invalidScopeModel = new class extends Post {
+            $invalidScopeModel = new class extends Post
+            {
                 protected $filterable = [
                     'invalid_scope' => 'scope:nonExistentScope',
                 ];
@@ -373,7 +385,7 @@ describe('Edge Cases and Error Handling', function () {
                     'status' => 'published', // Valid filter
                     'invalid_field' => 'value', // Invalid filter
                 ],
-                'sort' => 'title' // Valid sort
+                'sort' => 'title', // Valid sort
             ]);
             app()->instance('request', $request);
 

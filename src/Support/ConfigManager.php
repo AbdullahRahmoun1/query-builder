@@ -44,7 +44,7 @@ class ConfigManager
         // Determine if we are using a dedicated config class or the model itself.
         if ($configClass && class_exists($configClass)) {
             // Use dedicated config class
-            $configSource = new $configClass();
+            $configSource = new $configClass;
             $this->config = $this->loadFromConfigSource($configSource);
         } else {
             // Use model properties directly
@@ -71,7 +71,7 @@ class ConfigManager
                 }
             }
 
-            if (!$roleProviderClass) {
+            if (! $roleProviderClass) {
                 // Fallback to TestRoleProvider for testing
                 $roleProviderClass = \Wever\AdvancedQueryBuilder\Tests\Support\TestRoleProvider::class;
             }
@@ -87,7 +87,7 @@ class ConfigManager
         $roleConfig = [];
         foreach ($userRoles as $role) {
             // 3. Look for a role-specific method, e.g., getAdminConfig()
-            $methodName = 'get' . Str::studly($role) . 'Config';
+            $methodName = 'get'.Str::studly($role).'Config';
             if (method_exists($configSource, $methodName)) {
                 $roleConfig = $configSource->{$methodName}();
                 break; // Use the first matching role config found.
@@ -119,6 +119,7 @@ class ConfigManager
 
         return $result;
     }
+
     protected function loadFromModelProperties(): array
     {
         // Use reflection to access protected properties
@@ -132,7 +133,7 @@ class ConfigManager
         }
 
         // Ensure $filters is always an array
-        if (!is_array($filters)) {
+        if (! is_array($filters)) {
             $filters = [];
         }
 
@@ -141,7 +142,7 @@ class ConfigManager
         foreach ($filters as $key => $config) {
             // Check for the ['published'] format
             if (is_numeric($key) && is_string($config)) {
-                $scopeMethodName = 'scope' . Str::studly($config);
+                $scopeMethodName = 'scope'.Str::studly($config);
                 // If a scope exists, convert the config to the explicit format.
                 if (method_exists($this->model, $scopeMethodName)) {
                     $processedFilters[$config] = 'scope';
@@ -192,8 +193,8 @@ class ConfigManager
 
         return [
             'filters' => $processedFilters,
-            'sorts'   => $sorts,
-            'fields'  => [
+            'sorts' => $sorts,
+            'fields' => [
                 'allowed' => $allowedFields,
                 'hidden' => $hiddenFields,
                 'forced' => $forcedFields,

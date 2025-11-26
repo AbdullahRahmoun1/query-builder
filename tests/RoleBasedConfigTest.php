@@ -1,17 +1,17 @@
 <?php
 
+use Wever\AdvancedQueryBuilder\Tests\Models\Category;
 use Wever\AdvancedQueryBuilder\Tests\Models\Post;
 use Wever\AdvancedQueryBuilder\Tests\Models\User;
-use Wever\AdvancedQueryBuilder\Tests\Models\Category;
 use Wever\AdvancedQueryBuilder\Tests\Support\TestRoleProvider;
 
 describe('Role-Based Configuration', function () {
     beforeEach(function () {
         TestRoleProvider::clearRoles();
-        
+
         $this->user = User::factory()->create();
         $this->category = Category::factory()->create();
-        
+
         // Create test posts
         $this->publicPost = Post::factory()->create([
             'title' => 'Public Post',
@@ -45,7 +45,8 @@ describe('Role-Based Configuration', function () {
             TestRoleProvider::setRoles(['admin']);
 
             // Create a model with role-based config
-            $testModel = new class extends Post {
+            $testModel = new class extends Post
+            {
                 protected string $queryBuilderConfig = RoleBasedPostConfig::class;
             };
 
@@ -59,7 +60,8 @@ describe('Role-Based Configuration', function () {
         it('applies user role configuration', function () {
             TestRoleProvider::setRoles(['user']);
 
-            $testModel = new class extends Post {
+            $testModel = new class extends Post
+            {
                 protected string $queryBuilderConfig = RoleBasedPostConfig::class;
             };
 
@@ -73,7 +75,8 @@ describe('Role-Based Configuration', function () {
         it('handles multiple roles correctly', function () {
             TestRoleProvider::setRoles(['user', 'admin']); // User has multiple roles
 
-            $testModel = new class extends Post {
+            $testModel = new class extends Post
+            {
                 protected string $queryBuilderConfig = RoleBasedPostConfig::class;
             };
 
@@ -89,7 +92,8 @@ describe('Role-Based Configuration', function () {
         it('inherits general configuration in role-specific configs', function () {
             TestRoleProvider::setRoles(['admin']);
 
-            $testModel = new class extends Post {
+            $testModel = new class extends Post
+            {
                 protected string $queryBuilderConfig = RoleBasedPostConfig::class;
             };
 
@@ -106,7 +110,8 @@ describe('Role-Based Configuration', function () {
         it('allows role configs to override general configs', function () {
             TestRoleProvider::setRoles(['admin']);
 
-            $testModel = new class extends Post {
+            $testModel = new class extends Post
+            {
                 protected string $queryBuilderConfig = RoleBasedPostConfigWithOverrides::class;
             };
 
@@ -124,7 +129,8 @@ describe('Role-Based Configuration', function () {
             // Start with user role
             TestRoleProvider::setRoles(['user']);
 
-            $testModel = new class extends Post {
+            $testModel = new class extends Post
+            {
                 protected string $queryBuilderConfig = RoleBasedPostConfig::class;
             };
 
@@ -148,7 +154,8 @@ describe('Role-Based Configuration', function () {
         it('applies different field restrictions based on role', function () {
             TestRoleProvider::setRoles(['user']);
 
-            $testModel = new class extends Post {
+            $testModel = new class extends Post
+            {
                 protected string $queryBuilderConfig = RoleBasedPostConfig::class;
             };
 
@@ -162,7 +169,8 @@ describe('Role-Based Configuration', function () {
         it('allows admins access to sensitive fields', function () {
             TestRoleProvider::setRoles(['admin']);
 
-            $testModel = new class extends Post {
+            $testModel = new class extends Post
+            {
                 protected string $queryBuilderConfig = RoleBasedPostConfig::class;
             };
 
@@ -178,7 +186,8 @@ describe('Role-Based Configuration', function () {
         it('restricts sorting options based on role', function () {
             TestRoleProvider::setRoles(['user']);
 
-            $testModel = new class extends Post {
+            $testModel = new class extends Post
+            {
                 protected string $queryBuilderConfig = RoleBasedPostConfig::class;
             };
 
@@ -192,7 +201,8 @@ describe('Role-Based Configuration', function () {
         it('allows admins additional sorting options', function () {
             TestRoleProvider::setRoles(['admin']);
 
-            $testModel = new class extends Post {
+            $testModel = new class extends Post
+            {
                 protected string $queryBuilderConfig = RoleBasedPostConfig::class;
             };
 
@@ -208,7 +218,8 @@ describe('Role-Based Configuration', function () {
         it('handles non-existent role methods gracefully', function () {
             TestRoleProvider::setRoles(['nonexistent_role']);
 
-            $testModel = new class extends Post {
+            $testModel = new class extends Post
+            {
                 protected string $queryBuilderConfig = RoleBasedPostConfig::class;
             };
 
@@ -223,7 +234,8 @@ describe('Role-Based Configuration', function () {
         it('handles empty role arrays', function () {
             TestRoleProvider::setRoles([]);
 
-            $testModel = new class extends Post {
+            $testModel = new class extends Post
+            {
                 protected string $queryBuilderConfig = RoleBasedPostConfig::class;
             };
 
@@ -237,7 +249,8 @@ describe('Role-Based Configuration', function () {
         it('handles null roles', function () {
             TestRoleProvider::setRoles([null]);
 
-            $testModel = new class extends Post {
+            $testModel = new class extends Post
+            {
                 protected string $queryBuilderConfig = RoleBasedPostConfig::class;
             };
 
