@@ -3,88 +3,72 @@
 namespace Wever\AdvancedQueryBuilder\Query;
 
 use Spatie\QueryBuilder\QueryBuilder;
-use Wever\AdvancedQueryBuilder\FieldSelection\FieldSelectionHandler;
+use Wever\AdvancedQueryBuilder\Support\Schema;
 
 class QueryExecutor
 {
-    /**
-     * A flag to ensure our final logic only runs once per query execution.
-     */
     protected bool $finalLogicHasBeenApplied = false;
 
     public function __construct(
         protected QueryBuilder $builder,
-        protected FieldSelectionHandler $fieldSelectionHandler
+        protected array $fieldsConfig // Receives the raw config directly
     ) {}
 
-    /**
-     * This magic method intercepts any method call that doesn't exist on this class
-     * (e.g., get, paginate, toSql, dd, etc.), applies our final logic,
-     * and then forwards the call to the underlying Spatie builder.
-     */
     public function __call(string $method, array $parameters)
     {
         $this->applyFinalLogicIfNotApplied();
-
         return $this->builder->{$method}(...$parameters);
     }
 
-    /**
-     * A simple guard to prevent the enhancement logic from running multiple times.
-     */
     protected function applyFinalLogicIfNotApplied(): void
     {
         if ($this->finalLogicHasBeenApplied) {
             return;
         }
-
-        $this->applyFinalLogic();
-
+        $this->applyForcedAndDependentFields();
         $this->finalLogicHasBeenApplied = true;
     }
 
-    /**
-     * The main orchestrator for all final query enhancements.
-     */
-    protected function applyFinalLogic(): void
-    {
-        // This is where all future enhancements will be called from.
-        $this->applyForcedAndDependentFields();
-    }
-
-    /**
-     * The complete logic for handling field dependencies and forced fields.
-     */
-    /**
-     * The complete logic for handling field dependencies and forced fields.
-     */
     protected function applyForcedAndDependentFields(): void
     {
-        $eloquentBuilder = $this->builder->getEloquentBuilder();
-        $modelTable = $this->builder->getModel()->getTable();
-        $requestedFields = $this->builder->getRequestedFieldsForRelatedTable($modelTable);
+        // Field selection and dependency resolution is now handled in QueryBuilderFactory
+        // This method is kept for potential future field-related logic
+        // Currently, it's a no-op since field processing happens during QueryBuilder setup
+    }
 
-        if (empty($requestedFields)) {
-            return;
+    // --- Helper methods that used to be in the Handler ---
+
+    protected function getAllowedFields(): array
+    {
+        if (isset($this->fieldsConfig['allowed']) && !is_null($this->fieldsConfig['allowed'])) {
+            return $this->fieldsConfig['allowed'];
         }
+        
+        // Get database columns
+        $allColumns = (new Schema)->getColumns($this->builder->getModel());
+        $hidden = $this->getHiddenFields();
+        $databaseFields = array_diff($allColumns, $hidden);
+        
+        // Add accessor fields that have dependencies defined
+        $dependencies = $this->getFieldDependencies();
+        $accessorFields = array_keys($dependencies);
+        
+        // Combine database fields and accessor fields
+        return array_merge($databaseFields, $accessorFields);
+    }
 
-        // --- THE FIX: Start with forced fields, then add requested fields ---
+    protected function getHiddenFields(): array
+    {
+        return $this->fieldsConfig['hidden'] ?? [];
+    }
 
-        // 1. Start with the fields that must always be present.
-        $finalFields = $this->fieldSelectionHandler->getForcedFields();
+    protected function getForcedFields(): array
+    {
+        return $this->fieldsConfig['forced'] ?? [];
+    }
 
-        // 2. Add the fields the user explicitly asked for.
-        $finalFields = array_merge($finalFields, $requestedFields);
-
-        // 3. Add any dependencies triggered by the requested fields.
-        $dependencies = $this->fieldSelectionHandler->getFieldDependencies();
-        foreach ($requestedFields as $field) {
-            if (isset($dependencies[$field])) {
-                $finalFields = array_merge($finalFields, $dependencies[$field]);
-            }
-        }
-
-        // Apply the final, unique list of columns to the query's SELECT clause.
-        $eloquentBuilder->select(array_unique($finalFields));
+    protected function getFieldDependencies(): array
+    {
+        return $this->fieldsConfig['dependencies'] ?? [];
     }
 }

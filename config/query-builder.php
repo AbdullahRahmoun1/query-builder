@@ -14,4 +14,5 @@ return [
         'scope' => 'scope',
         'beginsWithStrict' => "beginsWithStrict"
     ],
+    'role_provider' => \Wever\AdvancedQueryBuilder\Auth\DefaultRoleProvider::class,
 ];

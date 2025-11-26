@@ -9,31 +9,29 @@ class FieldSelectionHandler
 {
     public function __construct(
         protected Model $model,
+        protected array $fieldsConfig,
         protected Schema $schema
     ) {}
 
     public function getAllowedFields(): array
     {
-        if (property_exists($this->model, 'allowedFields')) {
-            return $this->model->allowedFields;
+        if (isset($this->fieldsConfig['allowed']) && !is_null($this->fieldsConfig['allowed'])) {
+            return $this->fieldsConfig['allowed'];
         }
 
         $allColumns = $this->schema->getColumns($this->model);
+        $hidden = $this->fieldsConfig['hidden'] ?? [];
 
-        if (property_exists($this->model, 'hiddenFields')) {
-            return array_diff($allColumns, $this->model->hiddenFields);
-        }
-
-        return $allColumns;
+        return array_diff($allColumns, $hidden);
     }
 
     public function getForcedFields(): array
     {
-        return property_exists($this->model, 'forcedFields') ? $this->model->forcedFields : [];
+        return $this->fieldsConfig['forced'] ?? [];
     }
 
     public function getFieldDependencies(): array
     {
-        return property_exists($this->model, 'fieldDependencies') ? $this->model->fieldDependencies : [];
+        return $this->fieldsConfig['dependencies'] ?? [];
     }
 }
